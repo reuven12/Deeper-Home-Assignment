@@ -7,7 +7,7 @@
 }
 
 .grid-items {
-  width: 80%;
+  width: 85%;
   height: 70%;
   background-color: rgb(184, 206, 206);
   border-radius: 15px;
@@ -17,8 +17,8 @@
   display: grid;
   height: 90%;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  grid-gap: 20px;
-  padding: 40px;
+  grid-gap: 3%;
+  padding: 2%;
   grid-template-rows: min-content;
   overflow-y: auto;
 }
@@ -55,11 +55,12 @@
 
 .card-dialog {
   background-color: rgb(201, 221, 238);
-  width: 27%;
-  height: 47%;
+  width: 35%;
+  height: fit-content;
 }
 
 .header-input {
+  display: block;
   margin-bottom: 2px;
   text-align: left;
   width: 77%;
@@ -72,12 +73,11 @@
   margin-top: 10px;
 }
 
-.field-value {
-  padding: auto;
-  margin-bottom: 12px;
+.field-value,
+.p-inputnumber-input {
+  margin-bottom: 8%;
   border-radius: 10px;
   text-align: center;
-  width: 80%;
   height: 30px;
 }
 
@@ -109,14 +109,13 @@
   justify-content: space-around;
   align-items: center;
   margin-top: 15px;
+  padding: 0;
 }
 
 .p-field {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-direction: column;
-  margin-bottom: 20px;
   margin: auto;
 }
 

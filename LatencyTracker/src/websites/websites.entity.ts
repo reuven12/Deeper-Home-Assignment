@@ -12,8 +12,8 @@ export class WebsitesEntity {
   @Column()
   url: string;
 
-  @Column()
-  monitoringStatus: MonitoringStatus;
+  @Column({ default: MonitoringStatus.DEFAULT })
+  monitoringStatus?: MonitoringStatus;
 
   @Column()
   testFrequency: number;

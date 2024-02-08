@@ -13,11 +13,11 @@ const GridCards: React.FC<WebsitesProps> = ({ cards }) => {
   const [showActionsCard, setShowActionsCard] = useState<Website | null>(null);
   const getColorForStatus = (status: MonitoringStatus) => {
     switch (status) {
-      case MonitoringStatus.good:
+      case MonitoringStatus.GOOD:
         return 'green';
-      case MonitoringStatus.average:
+      case MonitoringStatus.AVERAGE:
         return 'yellow';
-      case MonitoringStatus.poor:
+      case MonitoringStatus.POOR:
         return 'red';
       default:
         return 'grey';

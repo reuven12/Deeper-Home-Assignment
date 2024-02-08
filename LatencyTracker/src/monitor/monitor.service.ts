@@ -1,34 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { WebsitesEntity } from '../websites/websites.entity';
 import { MonitoringStatus } from '../websites/websites.dto';
 import { exec } from 'child_process';
 import { WebsitesService } from '../websites/websites.service';
 
 @Injectable()
-export class SiteMonitoringService {
+export class MonitorService {
   constructor(private readonly websiteService: WebsitesService) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron('45 * * * * *')
   async monitorSites() {
+    console.log('Monitoring sites');
     const sites: WebsitesEntity[] = await this.websiteService.getAllWebsites();
     for (const site of sites) {
-      const { id, name, url, nextTestTime, testFrequency } = site;
+      const { id, name, url, testFrequency, nextTestTime } = site;
       if (this.shouldMonitor(nextTestTime)) {
         try {
           const responseTime = await this.measureResponseTime(url);
           let monitoringStatus: MonitoringStatus;
           if (responseTime < 20) {
-            monitoringStatus = MonitoringStatus.good;
+            monitoringStatus = MonitoringStatus.GOOD;
           } else if (responseTime >= 20 && responseTime <= 50) {
-            monitoringStatus = MonitoringStatus.average;
+            monitoringStatus = MonitoringStatus.AVERAGE;
           } else {
-            monitoringStatus = MonitoringStatus.poor;
+            monitoringStatus = MonitoringStatus.POOR;
           }
           await this.websiteService.updateWebsiteById(id, {
             monitoringStatus,
-            nextTestTime: new Date(Date.now() + testFrequency * 60 * 1000),
+            nextTestTime: new Date(
+              new Date(Date.now() + testFrequency * 60 * 1000),
+            ),
           });
+          console.log(`Site ${name} monitored successfully`);
         } catch (error) {
           console.error(`Error monitoring site ${name}: ${error.message}`);
         }
@@ -37,10 +41,7 @@ export class SiteMonitoringService {
   }
 
   private shouldMonitor(monitoringTime: Date): boolean {
-    if (monitoringTime > new Date()) {
-      return false;
-    }
-    return true;
+    return monitoringTime > new Date();
   }
 
   private measureResponseTime(url: string): Promise<number> {

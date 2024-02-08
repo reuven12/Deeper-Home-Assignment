@@ -29,6 +29,8 @@ const Homepage: React.FC = () => {
   }, []);
 
   const websiteCreated = (newWebsite: Website) => {
+    console.log('websiteCreated', newWebsite);
+    
     setCards((prevState) => [...prevState, newWebsite]);
   };
 

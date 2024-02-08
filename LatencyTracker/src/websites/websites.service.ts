@@ -23,30 +23,28 @@ export class WebsitesService {
 
   async createWebsite(website: WebsiteDto): Promise<void> {
     try {
-      const nextTestTime = new Date(
-        Date.now() + website.testFrequency * 60 * 1000,
-      );
-      website.nextTestTime = nextTestTime;
-      const entityToSave = this.websitesRepository.create(website);
+      const entityToSave: WebsitesEntity = this.websitesRepository.create({
+        ...website,
+        nextTestTime: this.frequencyCalculation(website.testFrequency),
+      });
       await this.websitesRepository.save(entityToSave);
-      this.socketGateway.emitWebsiteCreated(website);
+      this.socketGateway.emitWebsiteCreated({
+        ...website,
+        id: entityToSave.id,
+      });
     } catch (error) {
-      console.error('Error in createWebsite:', error);
+      console.error('Error in creatingWebsite:', error);
       throw new Error('Failed to createWebsite');
     }
   }
+  
 
   async updateWebsiteById(
     websiteId: number,
     website: Partial<WebsiteDto>,
   ): Promise<void> {
     try {
-      if (website.testFrequency) {
-        const nextTestTime = new Date(
-          Date.now() + website.testFrequency * 60 * 1000,
-        );
-        website.nextTestTime = nextTestTime;
-      }
+      website.nextTestTime = this.frequencyCalculation(website.testFrequency);
       await this.websitesRepository.update(websiteId, website);
       this.socketGateway.emitWebsiteUpdated(website);
     } catch (error) {
@@ -63,5 +61,9 @@ export class WebsitesService {
       console.error('Error in deleteWebsiteById:', error);
       throw new Error('Failed to delete website');
     }
+  }
+
+  frequencyCalculation(testFrequency: number): Date {
+    return new Date(Date.now() + testFrequency * 60 * 1000);
   }
 }

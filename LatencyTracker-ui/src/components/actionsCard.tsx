@@ -43,7 +43,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
     const { value } = e;
     setUpdateWebsite((prevState) => ({
       ...prevState,
-      monitoringTime: value as number,
+      testFrequency: value as number,
     }));
   };
 
@@ -81,9 +81,10 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
       <div className="p-field">
         {headers.map((header) => (
           <div key={header}>
-            <label className="header-input" htmlFor={header}>{`${
-              header[0].toUpperCase() + header.slice(1)
-            }:`}</label>
+            <label
+              className="header-input"
+              htmlFor={header}
+            >{`${header[0].toUpperCase()}${header.slice(1)}:`}</label>
             {header !== 'testFrequency' ? (
               <InputText
                 className="field-value"

@@ -2,14 +2,15 @@ export interface Website {
   id: number;
   name: string;
   url: string;
-  monitoringStatus?: MonitoringStatus;
   testFrequency: number;
+  monitoringStatus?: MonitoringStatus;
 }
 
 export enum MonitoringStatus {
-  good = 'good',
-  average = 'average',
-  poor = 'poor',
+  GOOD = 'good',
+  AVERAGE = 'average',
+  POOR = 'poor',
+  DEFAULT = 'default'
 }
 
 export enum WebsiteActionTypes {
