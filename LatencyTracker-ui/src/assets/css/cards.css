@@ -1,0 +1,128 @@
+.main-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: rgb(227, 241, 241);
+}
+
+.grid-items {
+  width: 80%;
+  height: 70%;
+  background-color: rgb(184, 206, 206);
+  border-radius: 15px;
+}
+
+.grid-container {
+  display: grid;
+  height: 90%;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-gap: 20px;
+  padding: 40px;
+  grid-template-rows: min-content;
+  overflow-y: auto;
+}
+
+.grid-item {
+  position: relative;
+  background-color: #f0f0f0;
+  height: 140px;
+  width: 175px;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.plus-icon-button {
+  width: 50%;
+  height: 50%;
+  margin: 20%;
+  color: rgb(34, 191, 188);
+  background-color: rgb(207, 211, 214);
+  border: none;
+}
+
+.card-dialog {
+  background-color: rgb(201, 221, 238);
+  width: 27%;
+  height: 47%;
+}
+
+.header-input {
+  margin-bottom: 2px;
+  text-align: left;
+  width: 77%;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.field-value {
+  padding: auto;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  text-align: center;
+  width: 80%;
+  height: 30px;
+}
+
+.p-button-cancel {
+  border-radius: '6px';
+  text-align: 'center';
+  background-color: dodgerblue;
+  border: none;
+}
+
+.p-button-create,
+.p-button-update {
+  border-radius: '6px';
+  text-align: 'center';
+  background-color: rgb(115, 192, 71);
+  border: none;
+}
+
+.p-button-delete {
+  width: 50px;
+  border-radius: '6px';
+  text-align: 'center';
+  background-color: rgb(225, 67, 67);
+  border: none;
+}
+
+.p-dialog-footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.p-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 20px;
+  margin: auto;
+}
+
+.actions {
+  display: flex;
+  height: 50px;
+  margin: auto;
+  margin-bottom: 25px;
+}
