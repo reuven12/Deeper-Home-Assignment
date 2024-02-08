@@ -28,13 +28,11 @@ const Homepage: React.FC = () => {
     fetchCurds();
   }, []);
 
-  const websiteCreated = (newWebsite: Website) => {
-    console.log('websiteCreated', newWebsite);
-    
+  const websiteCreated = (newWebsite: Website) => {  
     setCards((prevState) => [...prevState, newWebsite]);
   };
 
-  const websiteUpdated = (updatedWebsite: Website) => {
+  const websiteUpdated = (updatedWebsite: Website) => {    
     setCards((prevState) => {
       return prevState.map((website) =>
         website.id === updatedWebsite.id

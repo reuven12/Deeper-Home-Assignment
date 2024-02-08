@@ -37,15 +37,14 @@ export class WebsitesService {
       throw new Error('Failed to createWebsite');
     }
   }
-  
 
   async updateWebsiteById(
-    websiteId: number,
     website: Partial<WebsiteDto>,
   ): Promise<void> {
-    try {
-      website.nextTestTime = this.frequencyCalculation(website.testFrequency);
-      await this.websitesRepository.update(websiteId, website);
+    try {      
+      if (website.testFrequency)
+        website.nextTestTime = this.frequencyCalculation(website.testFrequency);
+      await this.websitesRepository.update(website.id, website);
       this.socketGateway.emitWebsiteUpdated(website);
     } catch (error) {
       console.error('Error in updateWebsiteById:', error);
@@ -63,7 +62,7 @@ export class WebsitesService {
     }
   }
 
-  frequencyCalculation(testFrequency: number): Date {
+  frequencyCalculation(testFrequency: number): Date {    
     return new Date(Date.now() + testFrequency * 60 * 1000);
   }
 }

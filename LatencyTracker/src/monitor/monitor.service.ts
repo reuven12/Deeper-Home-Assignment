@@ -1,23 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { WebsitesEntity } from '../websites/websites.entity';
 import { MonitoringStatus } from '../websites/websites.dto';
-import { exec } from 'child_process';
 import { WebsitesService } from '../websites/websites.service';
 
 @Injectable()
 export class MonitorService {
   constructor(private readonly websiteService: WebsitesService) {}
 
-  @Cron('45 * * * * *')
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async monitorSites() {
     console.log('Monitoring sites');
     const sites: WebsitesEntity[] = await this.websiteService.getAllWebsites();
     for (const site of sites) {
-      const { id, name, url, testFrequency, nextTestTime } = site;
-      if (this.shouldMonitor(nextTestTime)) {
+      const { id, name, url, testFrequency, nextTestTime } = site;      
+      if (this.shouldMonitor(nextTestTime)) {        
         try {
-          const responseTime = await this.measureResponseTime(url);
+          const responseTime = await this.measureResponseTime(url);                              
           let monitoringStatus: MonitoringStatus;
           if (responseTime < 20) {
             monitoringStatus = MonitoringStatus.GOOD;
@@ -26,11 +25,10 @@ export class MonitorService {
           } else {
             monitoringStatus = MonitoringStatus.POOR;
           }
-          await this.websiteService.updateWebsiteById(id, {
+          await this.websiteService.updateWebsiteById({
+            id,
+            testFrequency,
             monitoringStatus,
-            nextTestTime: new Date(
-              new Date(Date.now() + testFrequency * 60 * 1000),
-            ),
           });
           console.log(`Site ${name} monitored successfully`);
         } catch (error) {
@@ -44,19 +42,14 @@ export class MonitorService {
     return monitoringTime > new Date();
   }
 
-  private measureResponseTime(url: string): Promise<number> {
-    return new Promise((resolve, reject) => {
-      exec(
-        `curl -o /dev/null -s -w "%{time_total}" ${url}`,
-        (error, stdout) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          const responseTime = parseFloat(stdout) * 1000;
-          resolve(responseTime);
-        },
-      );
-    });
+  private async measureResponseTime(url: string): Promise<number> {
+    try {
+      const start = Date.now();
+      await fetch(url);
+      const end = Date.now();
+      return end - start;
+    } catch (error) {
+      throw new Error(`Error measuring response time: ${error.message}`);
+    }
   }
 }

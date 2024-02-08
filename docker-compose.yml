@@ -20,11 +20,11 @@ services:
     env_file:
       - .env
 
-  # react-app:
-  #   image: react-app
-  #   build: ./LatencyTracker-ui
-  #   ports:
-  #     - '3000:3000'
+  react-app:
+    image: react-app
+    build: ./LatencyTracker-ui
+    ports:
+      - '3000:3000'
 
 volumes:
   mysql_data:

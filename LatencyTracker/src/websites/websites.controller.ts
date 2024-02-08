@@ -29,7 +29,7 @@ export class WebsitesController {
     @Param('id') websiteId: number,
     @Body() website: Partial<WebsiteDto>,
   ) {
-    return await this.websitesService.updateWebsiteById(websiteId, website);
+    return await this.websitesService.updateWebsiteById({...website, id: Number(websiteId)});
   }
 
   @Delete(':id')

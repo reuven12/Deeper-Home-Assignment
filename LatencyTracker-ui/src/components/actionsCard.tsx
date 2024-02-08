@@ -74,7 +74,12 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
   return (
     <Dialog
       className="card-dialog"
-      header={<div className="dialog-header">Website Details</div>}
+      header={
+        <div className="dialog-header">
+          {' '}
+          {createCard ? 'Create New Card' : 'Website Details'}
+        </div>
+      }
       visible
       onHide={onClose}
     >
