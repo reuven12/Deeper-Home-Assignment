@@ -47,6 +47,12 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
     }));
   };
 
+  const buttonDisabled = ():boolean => {
+      return !(
+        updateWebsite?.name && updateWebsite?.url && updateWebsite?.testFrequency
+      );
+  };
+
   const handleActions = (actions: WebsiteActionTypes) => {
     switch (actions) {
       case WebsiteActionTypes.CREATE:
@@ -101,6 +107,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
               <InputNumber
                 className="field-value"
                 name={header}
+                placeholder="Enter a number only"
                 value={updateWebsite?.[header] as number}
                 onValueChange={handleMonitoringTimeChange}
               />
@@ -118,6 +125,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
         <Button
           className="p-button-update"
           label={createCard ? 'Create' : 'Update'}
+          disabled={buttonDisabled()}
           icon="pi pi-check"
           onClick={() =>
             handleActions(
