@@ -4,9 +4,14 @@ import '../assets/css/cards.css';
 import GridCards from '../components/cards';
 import { Website } from '../models/website.interfaces';
 import { io, Socket } from 'socket.io-client';
+import { InputText } from 'primereact/inputtext';
 
 const Homepage: React.FC = () => {
   const [cards, setCards] = useState<Website[]>([]);
+  const [filteringCards, setFilteringCards] = useState<Website[]>([]);
+  const [searchText, setSearchText] = useState<string>('');
+  const [isFilteringCards, setIsFilteringCards] = useState<boolean>(false);
+
   useEffect(() => {
     const socket: Socket = io('http://localhost:8001');
     socket.on('websiteCreated', websiteCreated);
@@ -21,18 +26,24 @@ const Homepage: React.FC = () => {
 
   useEffect(() => {
     const fetchCurds = async () => {
-      const usersData: Website[] = await WebsitesService.getCurds();
-      setCards(usersData);
+      setCards(await WebsitesService.getCurds());
     };
-
     fetchCurds();
   }, []);
 
-  const websiteCreated = (newWebsite: Website) => {  
+  useEffect(() => {
+    setFilteringCards(
+      cards.filter((website) =>
+        website.name.toLowerCase().includes(searchText),
+      ),
+    );
+  }, [searchText]);
+
+  const websiteCreated = (newWebsite: Website) => {
     setCards((prevState) => [...prevState, newWebsite]);
   };
 
-  const websiteUpdated = (updatedWebsite: Website) => {    
+  const websiteUpdated = (updatedWebsite: Website) => {
     setCards((prevState) => {
       return prevState.map((website) =>
         website.id === updatedWebsite.id
@@ -52,7 +63,16 @@ const Homepage: React.FC = () => {
 
   return (
     <div className="main-layout">
-      <GridCards cards={cards} />
+      <InputText
+        className="search-input"
+        placeholder="Search website..."
+        value={searchText}
+        onChange={(e) => {
+          setSearchText(e.target.value);
+          setIsFilteringCards(e.target.value.length > 0);
+        }}
+      />
+      <GridCards cards={isFilteringCards ? filteringCards : cards} />
     </div>
   );
 };
