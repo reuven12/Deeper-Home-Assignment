@@ -3,6 +3,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { WebsitesEntity } from '../websites/websites.entity';
 import { MonitoringStatus } from '../websites/websites.dto';
 import { WebsitesService } from '../websites/websites.service';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 @Injectable()
 export class MonitorService {
@@ -13,10 +15,10 @@ export class MonitorService {
     console.log('Monitoring sites');
     const sites: WebsitesEntity[] = await this.websiteService.getAllWebsites();
     for (const site of sites) {
-      const { id, name, url, testFrequency, nextTestTime } = site;      
-      if (this.shouldMonitor(nextTestTime)) {        
+      const { id, name, url, testFrequency, nextTestTime } = site;
+      if (this.shouldMonitor(nextTestTime)) {
         try {
-          const responseTime = await this.measureResponseTime(url);                              
+          const responseTime = await this.measureResponseTime(url);          
           let monitoringStatus: MonitoringStatus;
           if (responseTime < 20) {
             monitoringStatus = MonitoringStatus.GOOD;
@@ -44,10 +46,12 @@ export class MonitorService {
 
   private async measureResponseTime(url: string): Promise<number> {
     try {
-      const start = Date.now();
-      await fetch(url);
-      const end = Date.now();
-      return end - start;
+      const executeCommand = promisify(exec);
+      const { stdout } = await executeCommand(
+        `curl -o /dev/null -s -w '%{time_total}' ${url}`,
+      );
+      const responseTimeInSeconds = parseFloat(stdout.trim());
+      return responseTimeInSeconds * 1000;
     } catch (error) {
       throw new Error(`Error measuring response time: ${error.message}`);
     }

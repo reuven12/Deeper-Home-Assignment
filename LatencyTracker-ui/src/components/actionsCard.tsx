@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
@@ -28,6 +28,13 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
   const [updateWebsite, setUpdateWebsite] = useState<Partial<Website> | null>(
     website || null,
   );
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (updateWebsite) {
+      setButtonDisabled(checkDisabled);
+    }
+  }, [updateWebsite]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -47,10 +54,15 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
     }));
   };
 
-  const buttonDisabled = ():boolean => {
-      return !(
-        updateWebsite?.name && updateWebsite?.url && updateWebsite?.testFrequency
-      );
+  const checkDisabled = (): boolean => {
+    return !(
+      updateWebsite?.name &&
+      updateWebsite?.url &&
+      updateWebsite?.testFrequency &&
+      (updateWebsite?.testFrequency !== website?.testFrequency ||
+        updateWebsite?.url !== website?.url ||
+        updateWebsite?.name !== website?.name)
+    );
   };
 
   const handleActions = (actions: WebsiteActionTypes) => {
@@ -125,7 +137,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({
         <Button
           className="p-button-update"
           label={createCard ? 'Create' : 'Update'}
-          disabled={buttonDisabled()}
+          disabled={buttonDisabled}
           icon="pi pi-check"
           onClick={() =>
             handleActions(

@@ -9,6 +9,10 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  curl:
+    image: curlimages/curl
+    command: ["tail", "-f", "/dev/null"]
+
   nestjs-app:
     image: nest-app
     build: ./LatencyTracker
@@ -17,6 +21,7 @@ services:
       - '8001:8001'
     depends_on:
       - mysql
+      - curl
     env_file:
       - .env
 
