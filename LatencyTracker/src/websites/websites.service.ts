@@ -4,8 +4,11 @@ import { Repository } from 'typeorm';
 import { WebsitesEntity } from './websites.entity';
 import { WebsiteDto } from './websites.dto';
 import { SocketGateway } from '../socket/socket.gateway';
+import { Subject } from 'rxjs';
+
 @Injectable()
 export class WebsitesService {
+  private websitesChangedSubject: Subject<WebsitesEntity[]> = new Subject();
   constructor(
     private readonly socketGateway: SocketGateway,
     @InjectRepository(WebsitesEntity)
@@ -16,9 +19,18 @@ export class WebsitesService {
     try {
       return await this.websitesRepository.find();
     } catch (error) {
-      console.error('Error in getWebsites:', error);
+      console.error(`Error in getWebsites: ${error}`);
       throw new Error('Failed to fetch websites');
     }
+  }
+
+  emitWebsitesChanged(websites: WebsitesEntity[]) {
+    console.log('Emitting websites changed');
+    this.websitesChangedSubject.next(websites);
+  }
+
+  get websitesChanged() {
+    return this.websitesChangedSubject.asObservable();
   }
 
   async createWebsite(website: WebsiteDto): Promise<void> {
@@ -32,6 +44,7 @@ export class WebsitesService {
         ...website,
         id: entityToSave.id,
       });
+      this.emitWebsitesChanged(await this.getAllWebsites());
     } catch (error) {
       console.error('Error in creatingWebsite:', error);
       throw new Error('Failed to createWebsite');
@@ -41,11 +54,12 @@ export class WebsitesService {
   async updateWebsiteById(
     website: Partial<WebsiteDto>,
   ): Promise<void> {
-    try {      
+    try {
       if (website.testFrequency)
         website.nextTestTime = this.frequencyCalculation(website.testFrequency);
       await this.websitesRepository.update(website.id, website);
       this.socketGateway.emitWebsiteUpdated(website);
+      this.emitWebsitesChanged(await this.getAllWebsites());
     } catch (error) {
       console.error('Error in updateWebsiteById:', error);
       throw new Error('Failed to update website');
@@ -56,13 +70,14 @@ export class WebsitesService {
     try {
       await this.websitesRepository.delete(websiteId);
       this.socketGateway.emitWebsiteDeleted(websiteId);
+      this.emitWebsitesChanged(await this.getAllWebsites());
     } catch (error) {
       console.error('Error in deleteWebsiteById:', error);
       throw new Error('Failed to delete website');
     }
   }
 
-  frequencyCalculation(testFrequency: number): Date {    
+  frequencyCalculation(testFrequency: number): Date {
     return new Date(Date.now() + testFrequency * 60 * 1000);
   }
 }
