@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WebsitesEntity } from './websites.entity';
@@ -7,13 +7,17 @@ import { SocketGateway } from '../socket/socket.gateway';
 import { Subject } from 'rxjs';
 
 @Injectable()
-export class WebsitesService {
+export class WebsitesService implements OnModuleInit {
   private websitesChangedSubject: Subject<WebsitesEntity[]> = new Subject();
   constructor(
     private readonly socketGateway: SocketGateway,
     @InjectRepository(WebsitesEntity)
     private readonly websitesRepository: Repository<WebsitesEntity>,
   ) {}
+
+  async onModuleInit() {
+    this.emitWebsitesChanged();
+  }
 
   async getAllWebsites(): Promise<WebsitesEntity[]> {
     try {
@@ -24,8 +28,9 @@ export class WebsitesService {
     }
   }
 
-  emitWebsitesChanged(websites: WebsitesEntity[]) {
+  async emitWebsitesChanged() {
     console.log('Emitting websites changed');
+    const websites: WebsitesEntity[] = await this.getAllWebsites();
     this.websitesChangedSubject.next(websites);
   }
 
@@ -44,22 +49,20 @@ export class WebsitesService {
         ...website,
         id: entityToSave.id,
       });
-      this.emitWebsitesChanged(await this.getAllWebsites());
+      this.emitWebsitesChanged();
     } catch (error) {
       console.error('Error in creatingWebsite:', error);
       throw new Error('Failed to createWebsite');
     }
   }
 
-  async updateWebsiteById(
-    website: Partial<WebsiteDto>,
-  ): Promise<void> {
+  async updateWebsiteById(website: Partial<WebsiteDto>): Promise<void> {
     try {
       if (website.testFrequency)
         website.nextTestTime = this.frequencyCalculation(website.testFrequency);
       await this.websitesRepository.update(website.id, website);
       this.socketGateway.emitWebsiteUpdated(website);
-      this.emitWebsitesChanged(await this.getAllWebsites());
+      this.emitWebsitesChanged();
     } catch (error) {
       console.error('Error in updateWebsiteById:', error);
       throw new Error('Failed to update website');
@@ -70,7 +73,7 @@ export class WebsitesService {
     try {
       await this.websitesRepository.delete(websiteId);
       this.socketGateway.emitWebsiteDeleted(websiteId);
-      this.emitWebsitesChanged(await this.getAllWebsites());
+      this.emitWebsitesChanged();
     } catch (error) {
       console.error('Error in deleteWebsiteById:', error);
       throw new Error('Failed to delete website');

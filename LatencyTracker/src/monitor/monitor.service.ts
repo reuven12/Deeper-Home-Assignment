@@ -14,23 +14,12 @@ export class MonitorService implements OnModuleInit {
   constructor(private readonly websiteService: WebsitesService) {}
 
   async onModuleInit() {
-    await this.fetchInitialWebsites();    
     this.websitesSubscription = this.websiteService.websitesChanged.subscribe(
       (websites: WebsitesEntity[]) => {
-        console.log('MonitorService: Websites changed:', websites);
         this.sites = websites;
       },
     );
     }
-  
-
-  private async fetchInitialWebsites() {
-    try {
-      this.sites = await this.websiteService.getAllWebsites();
-    } catch (error) {
-      console.error(`Error fetching initial websites: ${error.message}`);
-    }
-  }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   async monitorSites() {
