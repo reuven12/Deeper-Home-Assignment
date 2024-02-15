@@ -26,13 +26,13 @@ export class MonitorService implements OnModuleInit {
     this.websitesSubscription = this.websiteService.websitesChanged.subscribe(
       (websites: WebsitesEntity[]) => {
         this.sites = websites;
-        this.updateNextTestTime();
+        this.scheduleMonitoringTask();
       },
     );
-    this.scheduleMonitoringTask();
   }
 
   private scheduleMonitoringTask() {
+    this.updateNextTestTime();
     const name = 'monitorSites';
     const jobExists = this.schedulerRegistry.doesExist('cron', name);
     if (jobExists) {
