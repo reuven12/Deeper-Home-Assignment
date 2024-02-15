@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AppController } from './app.controller';
 import { WebsiteModule } from './websites/websites.module';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { SocketGateway } from './socket/socket.gateway';
@@ -9,7 +7,6 @@ import { MonitorModule } from './monitor/monitor.module';
 import appConfig from '../config';
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig],
@@ -33,7 +30,6 @@ import appConfig from '../config';
     WebsiteModule,
     MonitorModule,
   ],
-  controllers: [AppController],
   providers: [SocketGateway],
 })
 export class AppModule {}

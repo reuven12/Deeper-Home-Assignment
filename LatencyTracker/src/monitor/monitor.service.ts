@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { CronJob } from 'cron';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { WebsitesEntity } from '../websites/websites.entity';
 import { MonitoringStatus } from '../websites/websites.dto';
 import { WebsitesService } from '../websites/websites.service';
@@ -10,20 +11,44 @@ import { Subscription } from 'rxjs';
 @Injectable()
 export class MonitorService implements OnModuleInit {
   private websitesSubscription: Subscription;
-  private sites: WebsitesEntity[] = [];
-  constructor(private readonly websiteService: WebsitesService) {}
+  private sites: WebsitesEntity[];
+  private nextTestTime: string;
+  constructor(
+    private readonly websiteService: WebsitesService,
+    private readonly schedulerRegistry: SchedulerRegistry,
+  ) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 1);
+    this.nextTestTime = `${now.getMinutes()} ${now.getHours()} * * *`;
+  }
 
   async onModuleInit() {
     this.websitesSubscription = this.websiteService.websitesChanged.subscribe(
       (websites: WebsitesEntity[]) => {
         this.sites = websites;
+        this.updateNextTestTime();
       },
     );
-    }
+    this.scheduleMonitoringTask();
+  }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  private scheduleMonitoringTask() {
+    const name = 'monitorSites';
+    const jobExists = this.schedulerRegistry.doesExist('cron', name);
+    if (jobExists) {
+      const job = this.schedulerRegistry.getCronJob(name);
+      job.stop();
+      this.schedulerRegistry.deleteCronJob(name);
+    }
+    const job = new CronJob(this.nextTestTime, async () => {
+      await this.monitorSites();
+    });
+    this.schedulerRegistry.addCronJob(name, job);
+    job.start();
+  }
+
   async monitorSites() {
-    console.log('Monitoring sites');    
+    console.log('Monitoring sites');
     for (const site of this.sites) {
       const { id, name, url, testFrequency, nextTestTime } = site;
       if (this.shouldMonitor(nextTestTime)) {
@@ -47,6 +72,15 @@ export class MonitorService implements OnModuleInit {
           console.error(`Error monitoring site ${name}: ${error.message}`);
         }
       }
+    }
+  }
+
+  private updateNextTestTime() {
+    if (this.sites && this.sites.length > 0) {
+      const nextTestTime: Date = new Date(
+        Math.min(...this.sites.map((site) => site.nextTestTime.getTime())),
+      );
+      this.nextTestTime = `0 ${nextTestTime.getMinutes()} ${nextTestTime.getHours()} * * *`;
     }
   }
 
