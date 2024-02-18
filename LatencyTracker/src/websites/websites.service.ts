@@ -81,6 +81,8 @@ export class WebsitesService implements OnModuleInit {
   }
 
   frequencyCalculation(testFrequency: number): Date {
-    return new Date(Date.now() + testFrequency * 60 * 1000);
+    const futureTime = new Date(Date.now() + testFrequency * 60 * 1000);
+    futureTime.setSeconds(0, 0);
+    return futureTime;
   }
 }

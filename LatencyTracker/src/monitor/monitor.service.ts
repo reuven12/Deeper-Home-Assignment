@@ -16,11 +16,7 @@ export class MonitorService implements OnModuleInit {
   constructor(
     private readonly websiteService: WebsitesService,
     private readonly schedulerRegistry: SchedulerRegistry,
-  ) {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + 1);
-    this.nextTestTime = `${now.getMinutes()} ${now.getHours()} * * *`;
-  }
+  ) {}
 
   async onModuleInit() {
     this.websitesSubscription = this.websiteService.websitesChanged.subscribe(
@@ -40,6 +36,7 @@ export class MonitorService implements OnModuleInit {
       job.stop();
       this.schedulerRegistry.deleteCronJob(name);
     }
+
     const job = new CronJob(this.nextTestTime, async () => {
       await this.monitorSites();
     });
@@ -77,15 +74,21 @@ export class MonitorService implements OnModuleInit {
 
   private updateNextTestTime() {
     if (this.sites && this.sites.length > 0) {
-      const nextTestTime: Date = new Date(
+      const earliestTime: Date = new Date(
         Math.min(...this.sites.map((site) => site.nextTestTime.getTime())),
       );
-      this.nextTestTime = `0 ${nextTestTime.getMinutes()} ${nextTestTime.getHours()} * * *`;
+      this.nextTestTime = `0 ${earliestTime.getMinutes()} ${earliestTime.getHours()} * * *`;
+      const now: Date = new Date();
+      now.setSeconds(0, 0);
+      if (earliestTime < now) {
+        now.setMinutes(now.getMinutes() + 1);
+        this.nextTestTime = `0 ${now.getMinutes()} ${now.getHours()} * * *`;
+      }
     }
   }
 
   private shouldMonitor(monitoringTime: Date): boolean {
-    return monitoringTime > new Date();
+    return monitoringTime <= new Date();
   }
 
   private async measureResponseTime(url: string): Promise<number> {
