@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
-import { WebsitesService } from '../websites/websites.service';
 import { WebsitesEntity } from '../websites/websites.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { WebsiteModule } from '../websites/websites.module';
-import { SocketGateway } from '../socket/socket.gateway';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MonitorService } from './monitor.service';
+import { WebsiteModule } from 'src/websites/websites.module';
 
 @Module({
   imports: [
@@ -13,6 +11,6 @@ import { MonitorService } from './monitor.service';
     TypeOrmModule.forFeature([WebsitesEntity]),
     WebsiteModule,
   ],
-  providers: [WebsitesService, SocketGateway, MonitorService],
+  providers: [MonitorService],
 })
 export class MonitorModule {}
