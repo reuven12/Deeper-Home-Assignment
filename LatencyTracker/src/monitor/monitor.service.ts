@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CronJob } from 'cron';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { WebsitesEntity } from '../websites/websites.entity';
+import { WebsiteEntity } from '../websites/websites.entity';
 import { MonitoringStatus } from '../websites/websites.dto';
 import { WebsitesService } from '../websites/websites.service';
 import { exec } from 'child_process';
@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 @Injectable()
 export class MonitorService implements OnModuleInit {
   private websitesSubscription: Subscription;
-  private sites: WebsitesEntity[];
+  private sites: WebsiteEntity[];
   private nextTestTime: string;
   constructor(
     private readonly websiteService: WebsitesService,
@@ -20,7 +20,7 @@ export class MonitorService implements OnModuleInit {
 
   async onModuleInit() {
     this.websitesSubscription = this.websiteService.websitesChanged.subscribe(
-      (websites: WebsitesEntity[]) => {
+      (websites: WebsiteEntity[]) => {
         this.sites = websites;
         this.scheduleMonitoringTask();
       },

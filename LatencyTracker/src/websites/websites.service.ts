@@ -1,25 +1,35 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { WebsitesEntity } from './websites.entity';
+import { Repository, Like } from 'typeorm';
+import { WebsiteEntity } from './websites.entity';
 import { WebsiteDto } from './websites.dto';
 import { SocketGateway } from '../socket/socket.gateway';
 import { Subject } from 'rxjs';
 
 @Injectable()
 export class WebsitesService implements OnModuleInit {
-  private websitesChangedSubject: Subject<WebsitesEntity[]> = new Subject();
+  private websitesChangedSubject: Subject<WebsiteEntity[]> = new Subject();
   constructor(
     private readonly socketGateway: SocketGateway,
-    @InjectRepository(WebsitesEntity)
-    private readonly websitesRepository: Repository<WebsitesEntity>,
+    @InjectRepository(WebsiteEntity)
+    private readonly websitesRepository: Repository<WebsiteEntity>,
   ) {}
 
   async onModuleInit() {
     this.emitWebsitesChanged();
   }
 
-  async getAllWebsites(): Promise<WebsitesEntity[]> {
+  async emitWebsitesChanged() {
+    console.log('Emitting websites changed');
+    const websites: WebsiteEntity[] = await this.getAllWebsites();
+    this.websitesChangedSubject.next(websites);
+  }
+
+  get websitesChanged() {
+    return this.websitesChangedSubject.asObservable();
+  }
+
+  async getAllWebsites(): Promise<WebsiteEntity[]> {
     try {
       return await this.websitesRepository.find();
     } catch (error) {
@@ -28,19 +38,20 @@ export class WebsitesService implements OnModuleInit {
     }
   }
 
-  async emitWebsitesChanged() {
-    console.log('Emitting websites changed');
-    const websites: WebsitesEntity[] = await this.getAllWebsites();
-    this.websitesChangedSubject.next(websites);
-  }
-
-  get websitesChanged() {
-    return this.websitesChangedSubject.asObservable();
+  async getWebsiteByName(name: string): Promise<WebsiteEntity[]> {
+    try {
+      return await this.websitesRepository.find({
+        where: { name: Like(`${name}%`) },
+      });
+    } catch (error) {
+      console.error(`Error in getWebsiteById: ${error}`);
+      throw new Error('Failed to fetch website');
+    }
   }
 
   async createWebsite(website: WebsiteDto): Promise<void> {
     try {
-      const entityToSave: WebsitesEntity = this.websitesRepository.create({
+      const entityToSave: WebsiteEntity = this.websitesRepository.create({
         ...website,
         nextTestTime: this.frequencyCalculation(website.testFrequency),
       });

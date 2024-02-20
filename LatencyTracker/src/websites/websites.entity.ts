@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { MonitoringStatus } from './websites.dto';
 
 @Entity('websites')
-export class WebsitesEntity {
+export class WebsiteEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

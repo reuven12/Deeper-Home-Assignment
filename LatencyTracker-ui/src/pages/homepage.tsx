@@ -8,9 +8,7 @@ import { InputText } from 'primereact/inputtext';
 
 const Homepage: React.FC = () => {
   const [cards, setCards] = useState<Website[]>([]);
-  const [filteringCards, setFilteringCards] = useState<Website[]>([]);
   const [searchText, setSearchText] = useState<string>('');
-  const [isFilteringCards, setIsFilteringCards] = useState<boolean>(false);
 
   useEffect(() => {
     const socket: Socket = io('http://localhost:8001');
@@ -29,14 +27,13 @@ const Homepage: React.FC = () => {
       setCards(await WebsitesService.getCurds());
     };
     fetchCurds();
-  }, []);
+  }, [!searchText]);
 
   useEffect(() => {
-    setFilteringCards(
-      cards.filter((website) =>
-        website.name.toLowerCase().includes(searchText),
-      ),
-    );
+    const searchCardsByName = async () => {
+      setCards(await WebsitesService.getCardByName(searchText.toLowerCase()));
+    };
+    searchCardsByName();
   }, [searchText]);
 
   const websiteCreated = (newWebsite: Website) => {
@@ -69,10 +66,9 @@ const Homepage: React.FC = () => {
         value={searchText}
         onChange={(e) => {
           setSearchText(e.target.value);
-          setIsFilteringCards(e.target.value.length > 0);
         }}
       />
-      <GridCards cards={isFilteringCards ? filteringCards : cards} />
+      <GridCards cards={cards} />
     </div>
   );
 };

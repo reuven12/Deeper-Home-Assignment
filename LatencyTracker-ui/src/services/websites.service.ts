@@ -8,6 +8,11 @@ export class WebsitesService {
     return (await HttpClient.get(`${baseUrl}${website}`)).data as Website[];
   };
 
+  static getCardByName = async (name: string): Promise<Website[]> => {
+    return (await HttpClient.get(`${baseUrl}${website}/by-name?name=${name}`))
+      .data as Website[];
+  };
+
   static createCard = async (newWebsite: Website): Promise<void> => {
     await HttpClient.post(`${baseUrl}${website}`, newWebsite);
   };

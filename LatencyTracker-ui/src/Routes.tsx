@@ -1,6 +1,6 @@
 import React from 'react';
 import { RouteObject, useRoutes } from 'react-router-dom';
-import Homepage from './pages/Homepage';
+import Homepage from './pages/homepage';
 
 const AppRoutes: React.FC = () => {
   const routes: RouteObject[] = [

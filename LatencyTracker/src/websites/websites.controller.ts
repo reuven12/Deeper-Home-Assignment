@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { WebsitesService } from './websites.service';
 import { WebsiteDto } from './websites.dto';
@@ -19,6 +20,12 @@ export class WebsitesController {
     return await this.websitesService.getAllWebsites();
   }
 
+  @Get('by-name')
+  async getWebsiteByName(@Query('name') name: string) {
+    console.log('Query name:', name);
+    return await this.websitesService.getWebsiteByName(name);
+  }
+
   @Post()
   async createWebsite(@Body() website: WebsiteDto) {
     return await this.websitesService.createWebsite(website);
@@ -29,7 +36,10 @@ export class WebsitesController {
     @Param('id') websiteId: number,
     @Body() website: Partial<WebsiteDto>,
   ) {
-    return await this.websitesService.updateWebsiteById({...website, id: Number(websiteId)});
+    return await this.websitesService.updateWebsiteById({
+      ...website,
+      id: Number(websiteId),
+    });
   }
 
   @Delete(':id')
