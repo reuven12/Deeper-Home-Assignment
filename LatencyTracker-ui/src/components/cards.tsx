@@ -25,7 +25,6 @@ const GridCards: React.FC<WebsitesProps> = ({ cards }) => {
   };
 
   return (
-    <div className="grid-items">
       <div className="grid-container">
         {cards.map((item, index) => (
           <div
@@ -63,7 +62,6 @@ const GridCards: React.FC<WebsitesProps> = ({ cards }) => {
           />
         )}
       </div>
-    </div>
   );
 };
 
