@@ -1,10 +1,10 @@
 .main-layout {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
   align-items: center;
   height: 100%;
   background-color: rgb(232, 251, 251);
+  padding-top: 7%;
 }
 
 .search-input {
@@ -13,6 +13,7 @@
   border-radius: 8px;
   font-size: 95%;
   border: none;
+  margin-bottom: 1.25%;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
 }
 
@@ -23,7 +24,7 @@
   grid-gap: 3%;
   background-color: rgb(184, 206, 206);
   border-radius: 15px;
-  height: 70%;
+  height: 80%;
   width: 85%;
   padding: 2%;
   grid-template-rows: min-content;
