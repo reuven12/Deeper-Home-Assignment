@@ -287,7 +287,21 @@ const swaggerSpec = {
 
 export default swaggerSpec;
 
-
+components: {
+      securitySchemes: {
+        apiKeyAuth: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'x-api-key',
+        },
+      },
+    },
+    security: [
+      {
+        apiKeyAuth: [],
+      },
+    ], // ברירת מחדל לכל המסלולים
+  },
 
 
 
